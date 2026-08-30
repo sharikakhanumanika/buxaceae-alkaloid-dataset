@@ -1,6 +1,6 @@
 # buxaceae-alkaloid-dataset
 
-Computational dataset and analysis files for the investigation on Natural Alkaloids from Buxaceae Plant Family as Multi-Target Anti-Alzheimer's Agents: A Computational Study
+Computational dataset and analysis files for the investigation of natural alkaloids from the Buxaceae plant family as multi-target anti-Alzheimer's agents: A computational study
 
 ## Research Overview
 The study combines molecular docking, ADMET prediction, molecular dynamics (MD) simulations, and binding free-energy analysis to investigate the interaction and stability of selected Buxaceae alkaloids with AChE and BChE.
@@ -49,6 +49,9 @@ Python and other analysis scripts used for processing and visualization of the c
 - **GROMACS `pdb2gmx`** — protein topology generation
 - **`sort_mol2_bonds.pl` utility** — correction and preparation of ligand MOL2 bond information
 - **SwissParam server** — generation of CHARMM-compatible ligand topology and parameters
+- 
+### Bioactivity Prediction
+- **PASS (Prediction of Activity Spectra for Substances; Way2Drug)** — prediction of biological activity spectra for the selected compounds
 
 ### Molecular Dynamics Simulation
 - **GROMACS 2025.3** — molecular dynamics simulations using the **CHARMM36 force field** and **TIP3P water model**
@@ -61,7 +64,7 @@ Python and other analysis scripts used for processing and visualization of the c
 ## Dataset Contents
 - `docking/` — binding affinity summary table (raw docking output available upon request)
 - `MD_simulation/` — molecular dynamics simulation-related files
-- `MD_analysis/` — RMSD, RMSF, Rg, SASA, hydrogen-bond, PCA, DCCM, and FEL analysis
+- `MD_analysis/` — RMSD, RMSF, Rg, SASA, hydrogen-bond, PCA, DCCM, MolSA, PolSA, and FEL analysis
 - `MMGBSA/` — MM-GBSA binding free-energy results
 - `scripts/` — Python scripts used for data analysis and visualization
 - `figures/` — figures generated from the computational analyses
@@ -70,11 +73,11 @@ Python and other analysis scripts used for processing and visualization of the c
 - Simulation engine: GROMACS 2025.3
 - Force field: CHARMM36
 - Water model: TIP3P
-- Simulation length: 100 ns per replicate (triplicate runs)
+- Simulation length: 100 ns per trajectory
+- Number of independent trajectories: 42 (36 holo and 6 apo; triplicate simulations)
 - Time step: 2 fs
 - Temperature: 300 K
 - Pressure: 1 bar
-- Number of independent trajectories: 42 (36 holo + 6 apo)
 
 ## Analysis
 - Root mean square deviation (RMSD)
@@ -86,6 +89,8 @@ Python and other analysis scripts used for processing and visualization of the c
 - Dynamic cross-correlation matrix (DCCM)
 - Free-energy landscape (FEL)
 - MM-GBSA binding free-energy analysis
+- Molecular surface area (MolSA)
+- Polar surface area (PolSA)
 
 ## Data Availability Note
 Raw molecular docking output files (PDBQT, logs) are available from the corresponding author upon reasonable request, due to file size and format constraints. ADMET (SwissADME, ProTox-3.0) and PASS prediction outputs can be regenerated using the SMILES codes provided in the manuscript via the respective publicly available web servers.
