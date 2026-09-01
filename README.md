@@ -119,4 +119,4 @@ The repository provides processed computational data, analysis outputs, figures,
 
 If you use the data or scripts from this repository, please cite:
 
-**[Authors]. [Dataset title]. Zenodo. DOI: [DOI]**
+**Sharika Khanum Anika, Md. Akram Hossain, Md Amenul Islam, Md Arif Hossain, Farhana Akter, Mohammad Asadujjaman, Muhammad Salehuddin Ayubee. (2026). Buxaceae Alkaloid MD Simulation Data — AChE/BChE Dual Inhibitors for Alzheimer's Disease. Zenodo. https://doi.org/10.5281/zenodo.22217722
