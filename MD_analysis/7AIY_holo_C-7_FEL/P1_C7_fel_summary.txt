@@ -1,0 +1,30 @@
+FREE ENERGY LANDSCAPE SUMMARY
+=============================================
+
+Frames analysed : 30001
+Histogram bins  : 50 x 50
+Temperature     : 300.0 K
+
+GLOBAL MINIMUM
+---------------------------
+DeltaG : 0.0000 kJ/mol
+PC1    : 11.6025 Å
+PC2    : 8.1508 Å
+
+FREE ENERGY STATISTICS
+---------------------------
+Mean ΔG : 29.1938 kJ/mol
+Max ΔG  : 45.3251 kJ/mol
+SD ΔG   : 18.6890 kJ/mol
+
+PC1 RANGE
+---------------------------
+Minimum : -28.4571 Å
+Maximum : 18.6718 Å
+Range   : 47.1289 Å
+
+PC2 RANGE
+---------------------------
+Minimum : -21.6427 Å
+Maximum : 17.0502 Å
+Range   : 38.6929 Å

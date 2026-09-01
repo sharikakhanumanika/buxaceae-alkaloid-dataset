@@ -1,0 +1,16 @@
+Domain_1,Domain_2,Mean,SD,Minimum,Maximum,N_pairs
+N_terminal,Omega_loop,-0.050296,0.074331,-0.197349,0.097622,16
+N_terminal,Gorge_entry,-0.140735,0.086461,-0.295474,-0.025375,16
+N_terminal,Gorge_core,-0.074964,0.185337,-0.373293,0.208359,16
+N_terminal,Acyl_pocket,-0.087218,0.161939,-0.367823,0.247544,16
+N_terminal,C_terminal,0.087731,0.085537,-0.104143,0.183424,16
+Omega_loop,Gorge_entry,0.079628,0.112723,-0.074759,0.301869,16
+Omega_loop,Gorge_core,-0.12067,0.259051,-0.493096,0.43861,16
+Omega_loop,Acyl_pocket,0.060862,0.173157,-0.218534,0.348081,16
+Omega_loop,C_terminal,-0.128839,0.089682,-0.304284,0.027446,16
+Gorge_entry,Gorge_core,-0.022827,0.168926,-0.336041,0.219987,16
+Gorge_entry,Acyl_pocket,0.039293,0.127631,-0.186722,0.350682,16
+Gorge_entry,C_terminal,-0.117399,0.069537,-0.222267,-0.019962,16
+Gorge_core,Acyl_pocket,-0.073686,0.280537,-0.47109,0.44337,16
+Gorge_core,C_terminal,-0.023758,0.12741,-0.278723,0.162205,16
+Acyl_pocket,C_terminal,-0.014451,0.067649,-0.129129,0.101515,16

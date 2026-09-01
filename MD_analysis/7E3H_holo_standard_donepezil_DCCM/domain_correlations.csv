@@ -1,0 +1,16 @@
+Domain_1,Domain_2,Mean,SD,Minimum,Maximum,N_pairs
+N_terminal,PAS_loop,-0.02913,0.09537,-0.203722,0.170203,16
+N_terminal,Mid_gorge,-0.062893,0.11378,-0.212377,0.118945,16
+N_terminal,Gorge_core,-0.029612,0.093582,-0.19003,0.09211,16
+N_terminal,Catalytic,0.01141,0.10919,-0.190984,0.120265,12
+N_terminal,C_terminal,-0.06053,0.080843,-0.178731,0.130053,16
+PAS_loop,Mid_gorge,-0.017129,0.088788,-0.227441,0.158981,16
+PAS_loop,Gorge_core,0.025187,0.112913,-0.208515,0.248633,16
+PAS_loop,Catalytic,-1.8e-05,0.148157,-0.227441,0.272596,12
+PAS_loop,C_terminal,0.018077,0.107948,-0.127482,0.250724,16
+Mid_gorge,Gorge_core,0.081146,0.096247,-0.048286,0.326868,16
+Mid_gorge,Catalytic,0.16677,0.286568,-0.070999,1.0,12
+Mid_gorge,C_terminal,-0.000433,0.099412,-0.163416,0.205475,16
+Gorge_core,Catalytic,0.075092,0.255646,-0.461494,0.650073,12
+Gorge_core,C_terminal,0.027853,0.118017,-0.155996,0.237945,16
+Catalytic,C_terminal,-0.024382,0.124426,-0.214426,0.184315,12

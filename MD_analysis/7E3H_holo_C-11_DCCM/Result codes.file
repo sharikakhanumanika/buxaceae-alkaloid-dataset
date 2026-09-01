@@ -1,0 +1,324 @@
+1) #Create an Analysis folder and copy your files there
+#From WSL bash:
+
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/ligand 1/run 3"
+mkdir -p Analysis/raw_data figures scripts
+
+
+#We’ll put intermediate files in Analysis/raw_data and figures in Analysis/figures.
+________________________________________
+2) #Make a centered / PBC-corrected trajectory (important!)
+#This makes molecules whole and centers the protein — do this before any RMSD/RMSF/SASA/etc.
+# I'm using MD.tpr and MD.xtc as you used earlier; change if needed
+
+
+gmx trjconv -s MD.tpr -f MD.xtc -o Analysis/raw_data/MD_center.xtc -center -pbc mol -ur compact
+
+
+When trjconv prompts:
+•	For "Select group for centering": choose Protein or Backbone (enter the number shown)
+•	For "Select output group": choose System
+________________________________________
+
+1 — Create an index group that contains Backbone + Ligand
+Why: your Methods say “RMSD of backbone atoms — including the bound ligand”. GROMACS will ask which groups to use; easiest is to make an index group called e.g. Backbone_LIG.
+Commands:
+
+
+gmx make_ndx -f MD.tpr -o Analysis/raw_data/index.ndx
+4 | 13
+name 21 Backbone_LIG
+q
+
+•	pick Backbone or enter the number corresponding to Backbone (usually "Backbone")
+•	pick the number corresponding to your ligand (often labelled LIG or the residue name)
+To create a combined group in the prompt, after selecting the backbone and ligand group numbers (for example backbone is 4 and ligand is 13)
+
+This creates group Backbone_LIG (here I used 20 as example index). If you’re unsure of group numbers, make_ndx lists them. Save index file.
+What this does: produces an index file so gmx rms can compute RMSD of the backbone aligned to backbone while measuring RMSD of backbone+ligand.
+________________________________________
+
+
+2 — RMSD of backbone (with ligand included in measurement)
+Matches: “RMSD of backbone atoms—including the bound ligand—over 100 ns”.
+Command:
+
+
+gmx rms -s MD.tpr -f Analysis/raw_data/MD_center.xtc -n Analysis/raw_data/index.ndx \
+    -o Analysis/RMSD_backbone_lig.xvg -tu ns
+
+
+Prompts:
+•	Select group for least-squares fit: choose Backbone (so whole trajectory is fit on protein backbone)
+•	Select group for RMSD calculation: choose Backbone_LIG (the combined group you made) or first select the combined group index
+Output: Analysis/RMSD_backbone_lig.xvg — time vs RMSD (Å).
+Why: fitting on backbone removes global rotation/translation; measuring RMSD on backbone+ligand quantifies how protein (backbone) + ligand deviates from starting pose as your Methods describe.
+•  Purpose: RMSD of both the backbone and ligand will show how much the structure deviates over time during the simulation. This is important to assess how ligand binding affects protein flexibility.
+•  Result Interpretation: This will show you the structural stability and flexibility of the complex (backbone + ligand) during the 100 ns run. You will plot RMSD versus time for each protein-ligand complex.
+________________________________________
+
+
+3 — RMSD of ligand only (separate)
+Why: helps you see ligand mobility inside pocket (your figure 2 description).
+Command:
+
+
+gmx rms -s MD.tpr -f Analysis/raw_data/MD_center.xtc -n Analysis/raw_data/index.ndx \
+    -o Analysis/RMSD_ligand.xvg -tu ns
+
+
+Prompts:
+•	Select group for least-squares fit: choose Backbone (still align trajectory to protein)
+•	Select group for RMSD calculation: choose LIG (the ligand group number)
+Output: Analysis/RMSD_ligand.xvg
+Why: ligand RMSD measured after aligning to the protein backbone isolates ligand motion relative to the binding site.
+•  Purpose: This isolates the ligand RMSD, showing its movement relative to the protein.
+•  Result Interpretation: The ligand RMSD will indicate how stable the ligand is within the binding pocket. A stable ligand will show low RMSD, while larger deviations suggest that the ligand might be loosely bound or fluctuating.
+________________________________________
+
+
+4 — RMSF of Cα atoms
+Matches: “RMSF profiles of C-alpha atoms”.
+Command:
+
+
+gmx rmsf -s MD.tpr -f Analysis/raw_data/MD_center.xtc -o Analysis/RMSF_ca.xvg -res
+
+
+Prompts:
+•	Select group: choose C-alpha (or Backbone if CA group not shown but usually CA is available)
+Output: Analysis/RMSF_ca.xvg (per-residue RMSF in nm; convert to Å by multiplying 10 if you need Å in the plots).
+Why: RMSF gives residue-by-residue flexibility; your Methods compared Holo vs Apo ΔRMSF later — this produces the Holo RMSF for run1.
+•  Purpose: RMSF shows the flexibility of individual residues within the protein, allowing you to identify regions of high mobility (often loops or unstructured regions).
+•  Result Interpretation: The RMSF profile of the apo and holo protein complexes will help you assess which parts of the protein are more flexible or rigid upon ligand binding.
+________________________________________
+
+
+5 — Hydrogen bond analysis (protein–ligand H-bonds)
+Matches: “H-bond interactions … donor-acceptor 3.5 Å and angle cutoff 30°”.
+Command:
+
+
+gmx hbond -s MD.tpr -f Analysis/raw_data/MD_center.xtc \
+          -n Analysis/raw_data/index.ndx \
+          -num Analysis/hbond_count.xvg
+
+Prompts:
+•	Select group for Donor:  1 (Protein)
+•	Select group for Acceptor:  13 (LIG)
+
+Output: Analysis/hbond_count.xvg gives number of H-bonds vs time. You can also add -hbn Analysis/hbond_index.ndx to get each H-bond occurrence.
+Why: H-bond counts/time -> quantify stability of ligand contacts (strong H-bond networks correlate with low ligand RMSD).
+•  Purpose: This measures hydrogen bonds between the protein and ligand during the simulation. A higher number of stable hydrogen bonds indicates a stronger interaction between the protein and ligand.
+•  Result Interpretation: The number of hydrogen bonds as a function of time will help you understand how stable the interaction between the ligand and protein is.
+________________________________________
+
+
+🔹 Step 6 — Solvent Accessible Surface Area (SASA)
+Why (Methodology Connection)
+“SASA of polar, nonpolar, backbone atoms … to assess surface exposure.”
+
+Total protein SASA
+
+gmx sasa -s MD.tpr -f Analysis/raw_data/MD_center.xtc \
+         -o Analysis/SASA_protein.xvg -surface 'Protein'
+
+
+Ligand SASA
+
+gmx sasa -s MD.tpr -f Analysis/raw_data/MD_center.xtc \
+         -o Analysis/SASA_ligand.xvg -surface 'LIG'
+
+
+Output
+Analysis/SASA_protein.xvg, Analysis/SASA_ligand.xvg — SASA vs time.
+Interprets Figure 5
+Lower SASA → more compact or buried; higher → more exposed surface.
+Compare apo vs holo to see compaction effects.
+Why: SASA change on binding can support conclusions about burial/exposure of ligand and binding pocket rearrangement.
+•  Purpose: SASA quantifies the exposure of the protein and ligand to the solvent, which is important for understanding the binding pocket’s structure and whether the ligand is buried or exposed.
+•  Result Interpretation: SASA profiles will help assess how much of the protein and ligand are accessible to the solvent. Ligand binding usually results in the burial of hydrophobic regions and changes in the protein surface.
+________________________________________
+
+
+🔹 Step 7 —  PCA
+
+⚙️ STEP 1 — Create concatenated trajectory (3 × 100 ns = 300 ns total per ligand) ( do same for every ligand)
+
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 1"
+
+
+create that directory before running trjcat.This combines all 3 runs into one trajectory, so PCA covers the full sampling.
+
+For each ligand, run:
+Run this command:
+
+mkdir -p "Analysis/pca"
+
+gmx trjcat -f "run 1/Analysis/raw_data/MD_center.xtc" \
+              "run 2/Analysis/raw_data/MD_center.xtc" \
+              "run 3/Analysis/raw_data/MD_center.xtc" \
+     -o Analysis/pca/concat_fit.xtc -cat
+
+🧬 STEP 2 — Run PCA in GROMACS ( do same for every ligand)
+
+Command 1: Compute covariance matrix
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 1"
+gmx covar -s "run 1/MD.tpr" \
+          -f Analysis/pca/concat_fit.xtc \
+          -o Analysis/pca/eigenval.xvg \
+          -v Analysis/pca/eigenvec.trr
+
+When prompted:
+
+Select group for least-squares fit: C-alpha
+Select group for covariance analysis: C-alpha
+
+
+and for apo-
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/apo/run 1"
+
+gmx covar -s MD.tpr \
+          -f Analysis/pca/concat_fit.xtc \
+          -o Analysis/pca/eigenval.xvg \
+          -v Analysis/pca/eigenvec.trr
+
+When prompted:
+
+Select group for least-squares fit: C-alpha
+Select group for covariance analysis: C-alpha
+
+Command 2: Project trajectory onto first three PCs ( do same for every ligand)
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 1"
+
+gmx anaeig -v Analysis/pca/eigenvec.trr \
+           -f Analysis/pca/concat_fit.xtc \
+           -s "run 1/MD.tpr" \
+           -first 1 -last 3 \
+           -proj Analysis/pca/proj.xvg
+
+
+gmx anaeig -v Analysis/pca/eigenvec.trr -s MD.tpr -f Analysis/raw_data/MD_center.xtc -first 1 -last 3 -proj Analysis/pca/proj.xvg
+
+
+
+for apo-
+ cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/apo/run 1"
+
+gmx anaeig -v Analysis/pca/eigenvec.trr \
+           -f Analysis/pca/concat_fit.xtc \
+           -s MD.tpr \
+           -first 1 -last 3 \
+           -proj Analysis/pca/proj.xvg
+
+
+📊 STEP 3 — Plot PCA projections (PC1–PC2, PC1–PC3, PC2–PC3)
+
+Go to PCA folder:
+
+cd "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 3/Analysis/pca"
+
+
+Create and open script:
+
+nano plot_pca_projections.py
+
+Paste this (same as yours, but verified and corrected):
+===============================================================================
+#!/usr/bin/env python3
+import numpy as np
+import matplotlib.pyplot as plt
+import os, sys
+
+# === INPUT ===
+xvg_file = sys.argv[1]  # path to proj.xvg
+system_name = sys.argv[2] if len(sys.argv) > 2 else "System"
+
+# === LOAD DATA ===
+data = np.genfromtxt(xvg_file, comments='#', invalid_raise=False)
+if data.ndim == 1:  # handle edge case where file has only one column
+    data = np.genfromtxt(xvg_file, comments='@', invalid_raise=False)
+data = data[~np.isnan(data).any(axis=1)]
+
+time = data[:,0]
+pc1, pc2, pc3 = data[:,1], data[:,2], data[:,3]
+
+# === PLOTS ===
+out_dir = os.path.dirname(xvg_file)
+
+def scatter_plot(x, y, xlabel, ylabel, fname):
+    plt.figure(figsize=(6,5))
+    plt.scatter(x, y, s=8, c=time, cmap='viridis')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(f"{system_name}: {xlabel} vs {ylabel}")
+    plt.colorbar(label='Time (ns)')
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, fname), dpi=300)
+    plt.close()
+
+scatter_plot(pc1, pc2, 'PC1', 'PC2', 'PCA_PC1_PC2.png')
+scatter_plot(pc1, pc3, 'PC1', 'PC3', 'PCA_PC1_PC3.png')
+scatter_plot(pc2, pc3, 'PC2', 'PC3', 'PCA_PC2_PC3.png')
+
+print(f"PCA plots saved in {out_dir}")
+===================================================================================
+4️⃣ Save and exit:
+Ctrl + O, Enter, then Ctrl + X
+
+5️⃣ Re-run your script:
+
+python3 plot_pca_projections.py "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 1/Analysis/pca/proj.xvg" "LIG1"
+
+6️⃣ Repeat for all systems
+
+python3 plot_pca_projections.py "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 2/Analysis/pca/proj.xvg" "LIG2"
+
+python3 plot_pca_projections.py "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 3/Analysis/pca/proj.xvg" "LIG3"
+
+python3 plot_pca_projections.py "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/holo/ligand 4/Analysis/pca/proj.xvg" "LIG4"
+
+python3 plot_pca_projections.py "/mnt/e/Ayub sir Research/Akram/Protein -1 7aiy/apo/Analysis/pca/proj.xvg" "APO"
+
+________________________________________
+🔹 Step 8 — Organize Files
+run1/
+ ├── MD.tpr
+ ├── Analysis/
+ │   ├── raw_data/
+ │   │   ├── MD_center.xtc
+ │   │   ├── index.ndx
+ │   ├── RMSD_backbone_lig.xvg
+ │   ├── RMSD_ligand.xvg
+ │   ├── RMSF_ca.xvg
+ │   ├── hbond_count.xvg
+ │   ├── SASA_protein.xvg
+ │   └── SASA_ligand.xvg
+Repeat same for run2, run3, and apo.
+________________________________________
+🔹 Step 9 — Average 3 Replicates per Ligand
+After you have the same files (RMSD_backbone_lig.xvg, etc.) for Run 1–3, use this to average:
+awk '/^[^#@]/{print $1, $2}' run1/Analysis/RMSD_backbone_lig.xvg > tmp1.dat
+awk '/^[^#@]/{print $2}' run2/Analysis/RMSD_backbone_lig.xvg > tmp2.dat
+awk '/^[^#@]/{print $2}' run3/Analysis/RMSD_backbone_lig.xvg > tmp3.dat
+
+paste tmp1.dat tmp2.dat tmp3.dat | \
+awk '{t=$1; mean=($2+$3+$4)/3; sd=sqrt((($2-mean)^2+($3-mean)^2+($4-mean)^2)/3); print t, mean, sd}' \
+> Analysis/RMSD_backbone_lig_avg.dat
+Then plot mean ± SD → gives Figure 1 (average RMSD).
+You can later do the same for ligand RMSD, H-bonds, or SASA if you want averaged curves.
+________________________________________
+🔹 Step 10 — Comparing Ligands (Final Figures)
+Once you finish all 3 runs for all 4 ligands + apo:
+•	Each ligand’s mean RMSD ± SD → plot together (Figure 1).
+•	Ligand RMSDs → Figure 2.
+•	RMSF (apo vs holo) → Figure 3.
+•	H-bond count vs time → Figure 4.
+•	SASA (polar/nonpolar/backbone) → Figure 5.
+Each of these directly matches the analyses above.
+________________________________________

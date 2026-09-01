@@ -1,0 +1,13 @@
+DCCM SUMMARY STATISTICS
+========================================
+
+Residues                      : 527
+Total_pairs                   : 277202
+Mean                          : 0.005349
+Standard_deviation            : 0.174287
+Minimum                       : -0.576677
+Maximum                       : 0.957876
+Strong_positive_(>0.50)       : 4962
+Moderate_positive_(>0.25)     : 20026
+Moderate_negative_(<-0.25)    : 11874
+Strong_negative_(<-0.50)      : 46
